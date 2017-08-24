@@ -12,7 +12,7 @@ struct point
     float x;
     float y;
 };
-point lineIntersection(point p1, point q1, point p2, point q2)
+point lineIntersection(point p1, point q1, point p2, point q2, point rectbottomleft, point rectopright)
 {
     float a1 = q1.y - p1.y;
     float b1 = p1.x - q1.x;
@@ -35,7 +35,9 @@ point lineIntersection(point p1, point q1, point p2, point q2)
         if(x >= min(p1.x, q1.x) && x<= max(p1.x,q1.x) && 
             y >= min(p1.y, q1.y) && y<= max(p1.y, q1.y) &&
             x >= min(p2.x, q2.x) && x<= max(p2.x,q2.x) &&
-            y >= min(p2.y, q2.y) && y<= max(p2.y,q2.y))
+            y >= min(p2.y, q2.y) && y<= max(p2.y,q2.y) &&
+            x >= min(rectbottomleft.x,rectopright.x) && x<=max(rectbottomleft.x,rectopright.x)&&
+            y >= min(rectbottomleft.y,rectopright.y) && y<=max(rectbottomleft.y,rectopright.x))
         {
             point pt = {x,y};
             return pt;
@@ -117,6 +119,10 @@ int main(int argc, char const *argv[])
     float d;
     ifstream infile("lines.txt");
     ifstream infile2("rect.txt");
+    ofstream newfile;
+    ofstream pointfile("points.txt");
+    newfile.open("answers.txt", ios::out | ios :: trunc);
+    
     float rectx1;
     float rectx2;
     float recty1;
@@ -130,6 +136,8 @@ int main(int argc, char const *argv[])
         i += 1;        
     }
     infile2 >> rectx1 >> recty1 >> rectx2 >> recty2;
+    point rectopright = {rectx2, recty2};
+    point rectbottomleft = {rectx1, recty1};
     point arrayintersect[1000];
     int l = 0;
     for (int k = 0; k<i; k++)
@@ -143,7 +151,7 @@ int main(int argc, char const *argv[])
             else
             {
                 point intersect = lineIntersection(array[k][0],array[k][1],
-                    array[j][0],array[j][1]);
+                    array[j][0],array[j][1],rectbottomleft,rectopright);
                 int flag = 0;
                 for (int p = 0; p<=l; p++)
                 {
@@ -159,7 +167,12 @@ int main(int argc, char const *argv[])
                 else if(intersect.x != FLT_MAX && intersect.y != FLT_MAX)
                 {
                     arrayintersect[l] = intersect;
+                    pointfile << arrayintersect[l].x << ' ' << arrayintersect[l].y << endl;
+
                     l += 1;
+                    //newfile << array[k][0].x << ' ' << array[k][0].y << ' ' << array[k][1].x << ' ' << array[k][1].y << endl;
+                    //newfile << array[j][0].x << ' ' << array[j][0].y << ' ' << array[j][1].x << ' ' << array[j][1].y << endl;
+                    newfile << j << ' ' << k << endl;
                 }
             }
         }
@@ -173,17 +186,7 @@ int main(int argc, char const *argv[])
     //point inter = lineIntersection(array[0][0],array[0][1],array[1][0],array[1][1]);
     //cout << inter.x << " " << inter.y;
     //point intersections_in_rectangle[100];
-    int count = 0;
     cout << endl << "Intersections within the rectangle:" << endl;
-    for(int j = 0; j < l; j++)
-    {
-        if(arrayintersect[j].x <= max(rectx2,rectx1) && arrayintersect[j].x >= min(rectx1,rectx2)
-            && arrayintersect[j].y <= max(recty2,recty1) && arrayintersect[j].y >= min(recty2,recty1))
-        {
-            cout << arrayintersect[j].x << " " << arrayintersect[j].y << endl; 
-            count += 1;
-        }
-    }
-    cout << "Number of intersections in the rectangle: " << count << endl;
+    cout << l;
     return 0;
 }
